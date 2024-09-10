@@ -5,21 +5,7 @@ export class Favorites {
   }
 
   load() {
-    this.entries = [
-      {
-        login: 'maykbrito',
-        name: "Mayk Brito",
-        public_repos: '76',
-        followers: '120000'
-      },
-      {
-        login: 'diego3g',
-        name: "Diego Fernandes",
-        public_repos: '76',
-        followers: '120000'
-      }
-    ]
-
+    this.entries = JSON.parse(localStorage.getItem('@github-favorites:')) || []
   }
 
 
@@ -27,9 +13,11 @@ export class Favorites {
 
     // higher-order functions (map, filter, find, sao funcoes que usamos constancia )
 
-    const filteredEntries = this.entries.filter(entry => entry.login !== user.login)
+    const filteredEntries = this.entries
+      .filter(entry => entry.login !== user.login)
 
-    console.log(filteredEntries)
+    this.entries = filteredEntries
+    this.update()
   }
 }
 
@@ -59,7 +47,7 @@ export class FavoritesView extends Favorites {
       row.querySelector('.followers').textContent = user.followers
 
       row.querySelector('.remove').onclick = () => {
-        const isOK = confirm('Tem certeza que deseja deletar essa linh?')
+        const isOK = confirm('Tem certeza que deseja deletar essa linha?')
         if (isOK) {
           this.delete(user)
         }
