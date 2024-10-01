@@ -1,35 +1,41 @@
-export class GithubUser {
-  static search() {
-    const endpoint = `https://api.github.com/users/${username} `
-
-    return fetch(endpoint)
-      .then(data => data.json())
-      .then
-      (({ login, name, public_repos, followers }) => (
-        {
-          login,
-          name,
-          public_repos,
-          followers,
-        }))
-  }
-}
-
+import { GithubUser } from "./GithubUser.js";
 
 export class Favorites {
   constructor(root) {
     this.root = document.querySelector(root);
     this.load()
-
-    GithubUser.search('maykbrito').then(user => console.log(user))
   }
 
   load() {
     this.entries = JSON.parse(localStorage.getItem('@github-favorites:')) || []
   }
 
+  save() {
+    localStorage.setItem('@github-favorites:', JSON.stringify(this.entries))
+  }
+
   async add(username) {
-    const user = await GithubUser.search(username)
+    try {
+
+      const userExist = this.entries.find(entry => entry.login === username)
+
+      if (userExist) {
+        throw new Error('usuario ja cadastrado')
+      }
+
+      const user = await GithubUser.search(username)
+
+      if (user.login === undefined) {
+        throw new Error('Usuario nao encontrado')
+      }
+
+      this.entries = [user, ...this.entries]
+      this.update()
+      this.save()
+
+    } catch (error) {
+      alert(error.message)
+    }
   }
 
   delete(user) {
@@ -41,6 +47,7 @@ export class Favorites {
 
     this.entries = filteredEntries
     this.update()
+    this.save()
   }
 }
 
